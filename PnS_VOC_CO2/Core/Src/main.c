@@ -22,6 +22,8 @@
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
 #include "sgp30.h"
+#include "easy_rgb_lcd.h"
+#include "buzzer.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -100,7 +102,9 @@ int main(void)
   //start communication with sensor
 
   HAL_Delay(10);
-
+  //Display initialization
+  LCD_begin(16,2,0);
+  LCD_setColorWhite();
   //first I2C initialization
   sgp30_iaq_init();
   HAL_Delay(1000);
@@ -113,9 +117,37 @@ int main(void)
   {
 	  //measurement of values
 	  uint16_t co2, tvoc;
+	  char buffer[17];
+
+	  //reading VOC and CO2 values
 	  sgp30_measure_iaq_blocking_read(&tvoc, &co2);
+
+	  // Clear and update LCD
+	  LCD_clear();
+
+	  LCD_setCursor(0, 0);
+	  snprintf(buffer, sizeof(buffer), "CO2: %u ppm", co2);
+	  LCD_print(buffer, strlen(buffer));
+
+	  LCD_setCursor(0, 1);
+	  snprintf(buffer, sizeof(buffer), "TVOC: %u ppb", tvoc);
+	  LCD_print(buffer, strlen(buffer));
+
+
+
+
 	  HAL_Delay(1000); //read every second
+
+	  if(co2>1000){
+		  buzzer_beep(500);
+		  HAL_Delay(1000);
+	  }
+
 	  printf("CO2: %d ppm, TVOC: %d ppb\r\n", co2, tvoc);
+	  int16_t ret = sgp30_measure_iaq_blocking_read(&tvoc, &co2);
+	  if (ret != 0) {
+	      printf("SGP30 I2C read error: %d\r\n", ret);
+	  }
 
     /* USER CODE END WHILE */
 

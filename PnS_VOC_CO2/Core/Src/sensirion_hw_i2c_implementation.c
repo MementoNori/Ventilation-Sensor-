@@ -55,7 +55,7 @@ extern I2C_HandleTypeDef hi2c1;
  */
 int16_t sensirion_i2c_select_bus(uint8_t bus_idx) {
     // IMPLEMENT or leave empty if all sensors are located on one single bus
-    return STATUS_FAIL;
+    return 0;
 }
 
 /**
@@ -86,7 +86,7 @@ void sensirion_i2c_release(void) {
  */
 int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count) {
     // IMPLEMENT
-	return HAL_I2C_Master_Receive(&hi2c1, address << 1, data, count, HAL_MAX_DELAY);
+	return HAL_I2C_Master_Receive(&hi2c1, address << 1, data, count, HAL_MAX_DELAY)== HAL_OK ? 0 :-1;
 
 }
 
@@ -104,7 +104,7 @@ int8_t sensirion_i2c_read(uint8_t address, uint8_t* data, uint16_t count) {
 int8_t sensirion_i2c_write(uint8_t address, const uint8_t* data,
                            uint16_t count) {
     // IMPLEMENT
-    return HAL_I2C_Master_Transmit(&hi2c1, address << 1, data, count, HAL_MAX_DELAY);
+    return HAL_I2C_Master_Transmit(&hi2c1, address << 1, data, count, HAL_MAX_DELAY) == HAL_OK ? 0 : -1;
 
 }
 
@@ -118,4 +118,5 @@ int8_t sensirion_i2c_write(uint8_t address, const uint8_t* data,
  */
 void sensirion_sleep_usec(uint32_t useconds) {
     // IMPLEMENT
+	HAL_Delay((useconds + 999)/ 1000);
 }

@@ -1,6 +1,6 @@
 ../Core/Src/sensirion_hw_i2c_implementation.c:56:9:sensirion_i2c_select_bus	1
 ../Core/Src/sensirion_hw_i2c_implementation.c:65:6:sensirion_i2c_init	1
 ../Core/Src/sensirion_hw_i2c_implementation.c:72:6:sensirion_i2c_release	1
-../Core/Src/sensirion_hw_i2c_implementation.c:87:8:sensirion_i2c_read	1
-../Core/Src/sensirion_hw_i2c_implementation.c:104:8:sensirion_i2c_write	1
+../Core/Src/sensirion_hw_i2c_implementation.c:87:8:sensirion_i2c_read	2
+../Core/Src/sensirion_hw_i2c_implementation.c:104:8:sensirion_i2c_write	2
 ../Core/Src/sensirion_hw_i2c_implementation.c:119:6:sensirion_sleep_usec	1

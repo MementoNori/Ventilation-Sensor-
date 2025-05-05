@@ -57,12 +57,12 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define Buzzer_Pin GPIO_PIN_2
+#define Buzzer_Pin GPIO_PIN_0
 #define Buzzer_GPIO_Port GPIOB
-#define VOC_SCL_Pin GPIO_PIN_8
-#define VOC_SCL_GPIO_Port GPIOB
-#define VOC_SDA_Pin GPIO_PIN_9
-#define VOC_SDA_GPIO_Port GPIOB
+#define I2C1_SCL_Pin GPIO_PIN_8
+#define I2C1_SCL_GPIO_Port GPIOB
+#define I2C1_SDA_Pin GPIO_PIN_9
+#define I2C1_SDA_GPIO_Port GPIOB
 
 /* USER CODE BEGIN Private defines */
 
