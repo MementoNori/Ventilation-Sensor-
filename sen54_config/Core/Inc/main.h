@@ -57,21 +57,6 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
-#define M24SR64_Y_RF_DISABLE_Pin GPIO_PIN_2
-#define M24SR64_Y_RF_DISABLE_GPIO_Port GPIOE
-#define USB_OTG_FS_OVRCR_EXTI3_Pin GPIO_PIN_3
-#define USB_OTG_FS_OVRCR_EXTI3_GPIO_Port GPIOE
-#define M24SR64_Y_GPO_Pin GPIO_PIN_4
-#define M24SR64_Y_GPO_GPIO_Port GPIOE
-#define SPSGRF_915_GPIO3_EXTI5_Pin GPIO_PIN_5
-#define SPSGRF_915_GPIO3_EXTI5_GPIO_Port GPIOE
-#define SPSGRF_915_GPIO3_EXTI5_EXTI_IRQn EXTI9_5_IRQn
-#define SPBTLE_RF_IRQ_EXTI6_Pin GPIO_PIN_6
-#define SPBTLE_RF_IRQ_EXTI6_GPIO_Port GPIOE
-#define SPBTLE_RF_IRQ_EXTI6_EXTI_IRQn EXTI9_5_IRQn
-#define BUTTON_EXTI13_Pin GPIO_PIN_13
-#define BUTTON_EXTI13_GPIO_Port GPIOC
-#define BUTTON_EXTI13_EXTI_IRQn EXTI15_10_IRQn
 #define ARD_A5_Pin GPIO_PIN_0
 #define ARD_A5_GPIO_Port GPIOC
 #define ARD_A4_Pin GPIO_PIN_1
@@ -208,10 +193,6 @@ void Error_Handler(void);
 #define SPSGRF_915_SPI3_CSN_GPIO_Port GPIOB
 #define ARD_D14_Pin GPIO_PIN_9
 #define ARD_D14_GPIO_Port GPIOB
-#define ISM43362_SPI3_CSN_Pin GPIO_PIN_0
-#define ISM43362_SPI3_CSN_GPIO_Port GPIOE
-#define ISM43362_DRDY_EXTI1_Pin GPIO_PIN_1
-#define ISM43362_DRDY_EXTI1_GPIO_Port GPIOE
 
 /* USER CODE BEGIN Private defines */
 

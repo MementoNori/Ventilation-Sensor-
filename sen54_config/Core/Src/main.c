@@ -53,7 +53,6 @@ extern I2C_HandleTypeDef hi2c1;
 I2C_HandleTypeDef hi2c1;
 
 UART_HandleTypeDef huart1;
-UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
 
@@ -68,7 +67,6 @@ PUTCHAR_PROTOTYPE
 /* Private function prototypes -----------------------------------------------*/
 void SystemClock_Config(void);
 static void MX_GPIO_Init(void);
-static void MX_USART2_UART_Init(void);
 static void MX_I2C1_Init(void);
 static void MX_USART1_UART_Init(void);
 /* USER CODE BEGIN PFP */
@@ -109,30 +107,100 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  /*MX_USART2_UART_Init();*/
   MX_I2C1_Init();
   MX_USART1_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  uint8_t sensor_data[48];  // Buffer large enough for full data
+  uint8_t sensor_data[60];  // Buffer large enough for full data
 
-  if (sen54_init(&hi2c1) == HAL_OK)
+
+  /*if (sen54_init(&hi2c1) == HAL_OK)
   {
       printf("Sensor initialized.\r\n");
   } else {
       printf("Sensor init failed.\r\n");
-  }
+  }*/
+
+
   if (sen54_read_measurements(&hi2c1, sensor_data, sizeof(sensor_data)) == HAL_OK) {
-      printf("Measurement received:\r\n");
+      /*printf("Measurement received:\r\n");*/
+
       for (int i = 0; i < sizeof(sensor_data); i++) {
           printf("%02X ", sensor_data[i]);
       }
       printf("\r\n");
-  } else {
-      printf("Measurement read failed\r\n");
   }
 
+  /*else {
+      printf("Measurement read failed\r\n");
+  }*/
 
+
+  if (sen54_read_measurements(&hi2c1, sensor_data, sizeof(sensor_data)) == HAL_OK) {
+	      /*printf("Measurement received:\r\n");*/
+
+
+	      /*for (int i = 0; i < sizeof(sensor_data); i++) {
+	          printf("%02X ", sensor_data[i]);
+	      }*/
+
+	      printf("Mass Concentration PM1.0:\r\n");
+	      for (int i = 0; i < 2; i++) {
+	      	  printf("%02X ", sensor_data[i]);
+	      }
+	      printf("\r\n");
+
+
+	      printf("Mass Concentration PM2.5:\r\n");
+	      for (int i = 3; i < 5; i++) {
+	    	  printf("%02X ", sensor_data[i]);
+	      }
+	      printf("\r\n");
+
+	      printf("Mass Concentration PM4.0:\r\n");
+	      for (int i = 6; i < 8; i++) {
+	    	  printf("%02X ", sensor_data[i]);
+	      }
+	      printf("\r\n");
+
+	      printf("Mass Concentration PM10:\r\n");
+	      for (int i = 9; i < 11; i++) {
+	    	  printf("%02X ", sensor_data[i]);
+	      }
+	      printf("\r\n");
+
+
+	      printf("Compensated Ambient Humidity:\r\n");
+	      for (int i = 12; i < 14; i++) {
+	    	  printf("%02X ", sensor_data[i]);
+	      }
+	      printf("\r\n");
+
+	      printf("Compensated Ambient Temperature:\r\n");
+	      for (int i = 15; i < 17; i++) {
+	          printf("%02X ", sensor_data[i]);
+	      }
+	      uint16_t raw_temp = ((uint16_t)sensor_data[15 * 3] << 8) | sensor_data[15 * 3 + 1];
+
+	      float temperature_celsius = raw_temp / 200.0f;
+	      int temp_int = (int)(temperature_celsius + 0.5f);
+	      printf("\r\nTemperature: %.d °C\r\n", temp_int);
+
+
+	      printf("VOC Index:\r\n");
+	      for (int i = 18; i < 20; i++) {
+	    	  printf("%02X ", sensor_data[i]);
+	      }
+	      printf("\r\n");
+
+	      printf("VOC Index:\r\n");
+	      for (int i = 21; i < 23; i++) {
+	    	  printf("%02X ", sensor_data[i]);
+	      }
+	      printf("\r\n");
+
+
+	  }
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -141,7 +209,17 @@ int main(void)
   {
     /* USER CODE END WHILE */
 
+
+
     /* USER CODE BEGIN 3 */
+	  printf("Compensated Ambient Temperature:\r\n");
+	  for (int i = 15; i < 17; i++) {
+		  printf("%02X ", sensor_data[i]);
+	  }
+	  uint16_t raw_temp = ((uint16_t)sensor_data[15] << 8) | sensor_data[16];
+	  float temperature_celsius = raw_temp / 200.0f;
+	  int temp_int = (int)(temperature_celsius + 0.5f);
+	  printf("\r\nTemperature: %.d °C\r\n", temp_int);
   }
   /* USER CODE END 3 */
 }
@@ -244,6 +322,16 @@ static void MX_I2C1_Init(void)
 
 }
 
+void scan_i2c_bus(I2C_HandleTypeDef *hi2c) {
+    printf("Scanning I2C bus...\r\n");
+    for (uint8_t addr = 1; addr < 128; addr++) {
+        if (HAL_I2C_IsDeviceReady(hi2c, addr << 1, 1, 10) == HAL_OK) {
+            printf("Device found at 0x%02X\r\n", addr);
+        }
+    }
+}
+
+
 /**
   * @brief USART1 Initialization Function
   * @param None
@@ -280,41 +368,6 @@ static void MX_USART1_UART_Init(void)
 }
 
 /**
-  * @brief USART2 Initialization Function
-  * @param None
-  * @retval None
-  */
-static void MX_USART2_UART_Init(void)
-{
-
-  /* USER CODE BEGIN USART2_Init 0 */
-
-  /* USER CODE END USART2_Init 0 */
-
-  /* USER CODE BEGIN USART2_Init 1 */
-
-  /* USER CODE END USART2_Init 1 */
-  huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
-  huart2.Init.WordLength = UART_WORDLENGTH_8B;
-  huart2.Init.StopBits = UART_STOPBITS_1;
-  huart2.Init.Parity = UART_PARITY_NONE;
-  huart2.Init.Mode = UART_MODE_TX_RX;
-  huart2.Init.HwFlowCtl = UART_HWCONTROL_NONE;
-  huart2.Init.OverSampling = UART_OVERSAMPLING_16;
-  huart2.Init.OneBitSampling = UART_ONE_BIT_SAMPLE_DISABLE;
-  huart2.AdvancedInit.AdvFeatureInit = UART_ADVFEATURE_NO_INIT;
-  if (HAL_UART_Init(&huart2) != HAL_OK)
-  {
-    Error_Handler();
-  }
-  /* USER CODE BEGIN USART2_Init 2 */
-
-  /* USER CODE END USART2_Init 2 */
-
-}
-
-/**
   * @brief GPIO Initialization Function
   * @param None
   * @retval None
@@ -326,18 +379,18 @@ static void MX_GPIO_Init(void)
 /* USER CODE END MX_GPIO_Init_1 */
 
   /* GPIO Ports Clock Enable */
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
-
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOE, M24SR64_Y_RF_DISABLE_Pin|M24SR64_Y_GPO_Pin|ISM43362_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, ARD_D8_Pin|ISM43362_BOOT0_Pin|ISM43362_WAKEUP_Pin|LED2_Pin
                           |SPSGRF_915_SDN_Pin|ARD_D5_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(ISM43362_RST_GPIO_Port, ISM43362_RST_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOD, USB_OTG_FS_PWR_EN_Pin|PMOD_RESET_Pin|STSAFE_A100_RESET_Pin, GPIO_PIN_RESET);
@@ -354,28 +407,6 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(SPSGRF_915_SPI3_CSN_GPIO_Port, SPSGRF_915_SPI3_CSN_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(ISM43362_SPI3_CSN_GPIO_Port, ISM43362_SPI3_CSN_Pin, GPIO_PIN_SET);
-
-  /*Configure GPIO pins : M24SR64_Y_RF_DISABLE_Pin M24SR64_Y_GPO_Pin ISM43362_RST_Pin ISM43362_SPI3_CSN_Pin */
-  GPIO_InitStruct.Pin = M24SR64_Y_RF_DISABLE_Pin|M24SR64_Y_GPO_Pin|ISM43362_RST_Pin|ISM43362_SPI3_CSN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pins : USB_OTG_FS_OVRCR_EXTI3_Pin SPSGRF_915_GPIO3_EXTI5_Pin SPBTLE_RF_IRQ_EXTI6_Pin ISM43362_DRDY_EXTI1_Pin */
-  GPIO_InitStruct.Pin = USB_OTG_FS_OVRCR_EXTI3_Pin|SPSGRF_915_GPIO3_EXTI5_Pin|SPBTLE_RF_IRQ_EXTI6_Pin|ISM43362_DRDY_EXTI1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : BUTTON_EXTI13_Pin */
-  GPIO_InitStruct.Pin = BUTTON_EXTI13_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(BUTTON_EXTI13_GPIO_Port, &GPIO_InitStruct);
-
   /*Configure GPIO pins : ARD_A5_Pin ARD_A4_Pin ARD_A3_Pin ARD_A2_Pin
                            ARD_A1_Pin ARD_A0_Pin */
   GPIO_InitStruct.Pin = ARD_A5_Pin|ARD_A4_Pin|ARD_A3_Pin|ARD_A2_Pin
@@ -390,6 +421,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF8_UART4;
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PMOD_UART2_TX_Pin PMOD_UART2_RX_Pin */
+  GPIO_InitStruct.Pin = PMOD_UART2_TX_Pin|PMOD_UART2_RX_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : ARD_D7_Pin */
@@ -434,6 +473,13 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   GPIO_InitStruct.Alternate = GPIO_AF6_DFSDM1;
   HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : ISM43362_RST_Pin */
+  GPIO_InitStruct.Pin = ISM43362_RST_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(ISM43362_RST_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : QUADSPI_CLK_Pin QUADSPI_NCS_Pin OQUADSPI_BK1_IO0_Pin QUADSPI_BK1_IO1_Pin
                            QUAD_SPI_BK1_IO2_Pin QUAD_SPI_BK1_IO3_Pin */
@@ -525,6 +571,14 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
   GPIO_InitStruct.Alternate = GPIO_AF5_SPI2;
   HAL_GPIO_Init(PMOD_SPI2_SCK_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : PMOD_UART2_CTS_Pin PMOD_UART2_RTS_Pin */
+  GPIO_InitStruct.Pin = PMOD_UART2_CTS_Pin|PMOD_UART2_RTS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_AF_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_VERY_HIGH;
+  GPIO_InitStruct.Alternate = GPIO_AF7_USART2;
+  HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI9_5_IRQn, 0, 0);

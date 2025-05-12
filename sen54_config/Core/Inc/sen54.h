@@ -10,7 +10,7 @@
 
 #include "stm32l4xx_hal.h"  // or your MCU-specific HAL header
 
-#define SEN54_I2C_ADDR (0x69 << 1)  // 7-bit address shifted left by 1 for STM32 HAL
+#define SEN54_I2C_ADDR (0x69<<1)  // 7-bit address shifted left by 1 for STM32 HAL
 
 
 HAL_StatusTypeDef sen54_init(I2C_HandleTypeDef *hi2c);

@@ -24,7 +24,7 @@ HAL_StatusTypeDef sen54_init(I2C_HandleTypeDef *hi2c)
     status = HAL_I2C_Master_Transmit(hi2c, SEN54_I2C_ADDR, (uint8_t*)start_measurement_cmd, sizeof(start_measurement_cmd), HAL_MAX_DELAY);
     HAL_Delay(100);  // Give sensor time to start measuring
 
-    printf("Sending to I2C address 0x%02X\r\n", SEN54_I2C_ADDR);
+    /*printf("Sending to I2C address 0x%02X\r\n", SEN54_I2C_ADDR);*/
 
 
     return status;
