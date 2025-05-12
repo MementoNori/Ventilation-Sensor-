@@ -1,6 +1,7 @@
 "./Core/Src/buzzer.o"
 "./Core/Src/easy_rgb_lcd.o"
 "./Core/Src/main.o"
+"./Core/Src/sen54.o"
 "./Core/Src/sensirion_common.o"
 "./Core/Src/sensirion_hw_i2c_implementation.o"
 "./Core/Src/sgp30.o"
