@@ -24,6 +24,7 @@
 #include "sgp30.h"
 #include "easy_rgb_lcd.h"
 #include "buzzer.h"
+#include "sen54.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -116,38 +117,95 @@ int main(void)
   while (1)
   {
 	  //measurement of values
-	  uint16_t co2, tvoc;
+	  uint16_t co2, tvoc, pm25;
+	  float temp = 0.0f, hum= 0.0f;
+
 	  char buffer[17];
+
+	  uint8_t cur_screen = 0;
+	  uint32_t last_switch = 0;
+
 
 	  //reading VOC and CO2 values
 	  sgp30_measure_iaq_blocking_read(&tvoc, &co2);
 
-	  // Clear and update LCD
-	  LCD_clear();
-
-	  LCD_setCursor(0, 0);
-	  snprintf(buffer, sizeof(buffer), "CO2: %u ppm", co2);
-	  LCD_print(buffer, strlen(buffer));
-
-	  LCD_setCursor(0, 1);
-	  snprintf(buffer, sizeof(buffer), "TVOC: %u ppb", tvoc);
-	  LCD_print(buffer, strlen(buffer));
-
+	  //reading SEn54
+	  if (sen54_measure() == 0) {
+	          temp = sen54_get_temperature();
+	          hum = sen54_get_humidity();
+	          pm25 = sen54_get_pm2p5();
+	      }
 
 
 
 	  HAL_Delay(1000); //read every second
 
-	  if(co2>1000){
+	  //cycling through the data on screen
+	  if (HAL_GetTick() - last_switch >= 5000) {
+	          last_switch = HAL_GetTick();
+	          cur_screen = (cur_screen + 1) % 3;
+
+	          //clear and update LCD
+	          LCD_clear();
+			  switch(cur_screen){
+				  case 0:
+					  LCD_setCursor(0, 0);
+					  snprintf(buffer, sizeof(buffer), "CO2: %u ppm", co2);
+					  LCD_print(buffer, strlen(buffer));
+
+					  LCD_setCursor(0, 1);
+					  snprintf(buffer, sizeof(buffer), "TVOC: %u ppb", tvoc);
+					  LCD_print(buffer, strlen(buffer));
+				  case 1:
+					  LCD_setCursor(0, 0);
+					  int temp_int = (int)(temp + 0.5f);
+					  snprintf(buffer, sizeof(buffer), "T: %d C", temp_int);
+					  LCD_print(buffer, strlen(buffer));
+
+					  LCD_setCursor(0, 1);
+					  int hum_int = (int)(hum + 0.5f);
+					  snprintf(buffer, sizeof(buffer), "RH: %d %%", hum_int);
+					  LCD_print(buffer, strlen(buffer));
+				  case 2:
+					  LCD_setCursor(0, 0);
+					  snprintf(buffer, sizeof(buffer), "PM2.5: %u ug/m3", pm25);
+					  LCD_print(buffer, strlen(buffer));
+			  }
+
+
+	  }
+	  //Check Lüften conditions
+	  if (co2>1000|| tvoc>300||pm25>35){
 		  buzzer_beep(500);
-		  HAL_Delay(1000);
+		  LCD_setCursor(0, 0);
+		  snprintf(buffer, sizeof(buffer), "LUEFTEN!");
+		  LCD_print(buffer, strlen(buffer));
+		  sgp30_measure_iaq_blocking_read(&tvoc, &co2);
+
+		  LCD_setCursor(0, 1);
+		  if (co2 > 1000) {
+		          snprintf(buffer, sizeof(buffer), "CO2: %u ppm", co2);
+		      }
+		  else if (tvoc > 300) {
+		          snprintf(buffer, sizeof(buffer), "TVOC: %u ppb", tvoc);
+		      }
+		  else if (pm25 > 35) {
+		          snprintf(buffer, sizeof(buffer), "PM2.5: %u ug/m3", pm25);
+		      }
+		  LCD_print(buffer, strlen(buffer));
+
+		  HAL_Delay(500);
+		  LCD_clear();
+		  HAL_Delay(500);
 	  }
 
-	  printf("CO2: %d ppm, TVOC: %d ppb\r\n", co2, tvoc);
+
+	  //printf("CO2: %d ppm, TVOC: %d ppb\r\n", co2, tvoc);
 	  int16_t ret = sgp30_measure_iaq_blocking_read(&tvoc, &co2);
 	  if (ret != 0) {
 	      printf("SGP30 I2C read error: %d\r\n", ret);
 	  }
+
 
     /* USER CODE END WHILE */
 
