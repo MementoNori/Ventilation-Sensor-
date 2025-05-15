@@ -1,0 +1,6 @@
+../Core/Src/sensirion_i2c_hal.c:58:9:sensirion_i2c_hal_select_bus	16	static
+../Core/Src/sensirion_i2c_hal.c:69:6:sensirion_i2c_hal_init	4	static
+../Core/Src/sensirion_i2c_hal.c:76:6:sensirion_i2c_hal_free	4	static
+../Core/Src/sensirion_i2c_hal.c:90:8:sensirion_i2c_hal_read	32	static
+../Core/Src/sensirion_i2c_hal.c:111:8:sensirion_i2c_hal_write	32	static
+../Core/Src/sensirion_i2c_hal.c:129:6:sensirion_i2c_hal_sleep_usec	24	static,ignoring_inline_asm

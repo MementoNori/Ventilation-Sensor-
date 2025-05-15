@@ -23,6 +23,8 @@
 /* USER CODE BEGIN Includes */
 #include "string.h"
 #include "sen54.h"
+#include "sen5x_i2c.h"
+#include "stdio.h"
 
 
 /* USER CODE END Includes */
@@ -113,13 +115,33 @@ int main(void)
 
   uint8_t sensor_data[60];  // Buffer large enough for full data
 
+  uint8_t buffer[48];
+  sen5x_get_product_name(buffer, 48);
+  int16_t error = sen5x_device_reset();
+  error = sen5x_start_measurement();
 
-  /*if (sen54_init(&hi2c1) == HAL_OK)
+  uint16_t mass_concentration_pm1p0;
+  uint16_t mass_concentration_pm2p5;
+  uint16_t mass_concentration_pm4p0;
+  uint16_t mass_concentration_pm10p0;
+  int16_t ambient_humidity;
+  int16_t ambient_temperature;
+  int16_t voc_index;
+  int16_t nox_index;
+
+  HAL_Delay(1000);
+
+  error = sen5x_read_measured_values(
+      &mass_concentration_pm1p0, &mass_concentration_pm2p5,
+      &mass_concentration_pm4p0, &mass_concentration_pm10p0,
+      &ambient_humidity, &ambient_temperature, &voc_index, &nox_index);
+
+  if (sen54_init(&hi2c1) == HAL_OK)
   {
       printf("Sensor initialized.\r\n");
   } else {
       printf("Sensor init failed.\r\n");
-  }*/
+  }
 
 
   if (sen54_read_measurements(&hi2c1, sensor_data, sizeof(sensor_data)) == HAL_OK) {
@@ -144,60 +166,87 @@ int main(void)
 	          printf("%02X ", sensor_data[i]);
 	      }*/
 
-	      printf("Mass Concentration PM1.0:\r\n");
+	      /*printf("Mass Concentration PM1.0:\r\n");
 	      for (int i = 0; i < 2; i++) {
 	      	  printf("%02X ", sensor_data[i]);
-	      }
+	      }*/
 	      printf("\r\n");
+	      uint16_t raw_mc_1 = ((uint16_t)sensor_data[0] << 8) | sensor_data[1];
+	      mass_concentration_pm1p0 = raw_mc_1/10.0f;
+	      int mc_1_int = (int)(mass_concentration_pm1p0 + 0.5f);
+	      printf("\r\nMass Concentration PM1.0: %.d °C\r\n", mc_1_int);
 
 
-	      printf("Mass Concentration PM2.5:\r\n");
+	      /*printf("Mass Concentration PM2.5:\r\n");
 	      for (int i = 3; i < 5; i++) {
 	    	  printf("%02X ", sensor_data[i]);
-	      }
+	      }*/
 	      printf("\r\n");
+	      uint16_t raw_mc_25 = ((uint16_t)sensor_data[3] << 8) | sensor_data[4];
+	      mass_concentration_pm2p5 = raw_mc_25/10.0f;
+	      int mc_25_int = (int)(mass_concentration_pm2p5 + 0.5f);
+	      printf("\r\nMass Concentration PM2.5: %.d °C\r\n", mc_25_int);
 
-	      printf("Mass Concentration PM4.0:\r\n");
+
+	      /*printf("Mass Concentration PM4.0:\r\n");
 	      for (int i = 6; i < 8; i++) {
 	    	  printf("%02X ", sensor_data[i]);
-	      }
+	      }*/
 	      printf("\r\n");
+	      uint16_t raw_mc_4 = ((uint16_t)sensor_data[6] << 8) | sensor_data[7];
+	      mass_concentration_pm4p0 = raw_mc_4/10.0f;
+	      int mc_4_int = (int)(mass_concentration_pm4p0 + 0.5f);
+	      printf("\r\nMass Concentration PM4.0: %.d °C\r\n", mc_4_int);
 
-	      printf("Mass Concentration PM10:\r\n");
+
+	      /*printf("Mass Concentration PM10:\r\n");
 	      for (int i = 9; i < 11; i++) {
 	    	  printf("%02X ", sensor_data[i]);
-	      }
+	      }*/
 	      printf("\r\n");
+	      uint16_t raw_mc_10 = ((uint16_t)sensor_data[9] << 8) | sensor_data[10];
+	      mass_concentration_pm10p0 = raw_mc_10/10.0f;
+	      int mc_10_int = (int)(mass_concentration_pm10p0 + 0.5f);
+	      printf("\r\nMass Concentration PM10.0: %.d °C\r\n", mc_10_int);
 
 
-	      printf("Compensated Ambient Humidity:\r\n");
+	      /*printf("Compensated Ambient Humidity:\r\n");
 	      for (int i = 12; i < 14; i++) {
 	    	  printf("%02X ", sensor_data[i]);
-	      }
+	      }*/
 	      printf("\r\n");
+	      uint16_t raw_hum = ((uint16_t)sensor_data[12] << 8) | sensor_data[13];
+	      ambient_humidity = raw_hum/100.0f;
+	      int hum_int = (int)(ambient_humidity + 0.5f);
+	      printf("\r\nAmbient Humidity: %.d %\r\n", hum_int);
 
-	      printf("Compensated Ambient Temperature:\r\n");
-	      for (int i = 15; i < 17; i++) {
+
+	      //printf("Compensated Ambient Temperature:\r\n");
+	      /*for (int i = 15; i < 17; i++) {
 	          printf("%02X ", sensor_data[i]);
-	      }
-	      uint16_t raw_temp = ((uint16_t)sensor_data[15 * 3] << 8) | sensor_data[15 * 3 + 1];
+	      }*/
+	      uint16_t raw_temp = ((uint16_t)sensor_data[15] << 8) | sensor_data[16];
+	      float room_temperature = raw_temp / 200.0f;
+	      int temp_int = (int)(room_temperature + 0.5f);
+	      printf("\r\nAmbient Temperature: %.d °C\r\n", temp_int);
 
-	      float temperature_celsius = raw_temp / 200.0f;
-	      int temp_int = (int)(temperature_celsius + 0.5f);
-	      printf("\r\nTemperature: %.d °C\r\n", temp_int);
 
-
-	      printf("VOC Index:\r\n");
+	      /*printf("VOC Index:\r\n");
 	      for (int i = 18; i < 20; i++) {
 	    	  printf("%02X ", sensor_data[i]);
 	      }
 	      printf("\r\n");
+	      uint16_t raw_temp = ((uint16_t)sensor_data[15 ] << 8) | sensor_data[15 * 3 + 1];
+	      ambient_temperature = raw_temp / 200.0f;
+	      int temp_int = (int)(ambient_temperature + 0.5f);
+	      printf("\r\nVOC Index: %.d °C\r\n", temp_int);
+
 
 	      printf("VOC Index:\r\n");
 	      for (int i = 21; i < 23; i++) {
 	    	  printf("%02X ", sensor_data[i]);
 	      }
-	      printf("\r\n");
+	      printf("\r\n");*/
 
 
 	  }
@@ -212,14 +261,22 @@ int main(void)
 
 
     /* USER CODE BEGIN 3 */
-	  printf("Compensated Ambient Temperature:\r\n");
+	 /* printf("Compensated Ambient Temperature:\r\n");
 	  for (int i = 15; i < 17; i++) {
 		  printf("%02X ", sensor_data[i]);
-	  }
+	  }*/
+
 	  uint16_t raw_temp = ((uint16_t)sensor_data[15] << 8) | sensor_data[16];
-	  float temperature_celsius = raw_temp / 200.0f;
-	  int temp_int = (int)(temperature_celsius + 0.5f);
-	  printf("\r\nTemperature: %.d °C\r\n", temp_int);
+	  float room_temperature = raw_temp / 200.0f;
+	  int temp_int = (int)(room_temperature + 0.5f);
+	  printf("\r\nAmbient Temperature: %.d °C\r\n", temp_int);
+
+	  printf("\r\n");
+
+	  uint16_t raw_hum = ((uint16_t)sensor_data[12] << 8) | sensor_data[13];
+	  ambient_humidity = raw_hum/100.0f;
+	  int hum_int = (int)(ambient_humidity + 0.5f);
+	  printf("\r\nAmbient Humidity: %.d %\r\n", hum_int);
   }
   /* USER CODE END 3 */
 }

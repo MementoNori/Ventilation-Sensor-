@@ -1,4 +1,6 @@
-Core/Src/sen54.o: ../Core/Src/sen54.c ../Core/Inc/sen54.h \
+Core/Src/sensirion_i2c_hal.o: ../Core/Src/sensirion_i2c_hal.c \
+ ../Core/Inc/sensirion_i2c_hal.h ../Core/Inc/sensirion_config.h \
+ ../Core/Inc/sensirion_common.h ../Core/Inc/sensirion_config.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h \
  ../Core/Inc/stm32l4xx_hal_conf.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc.h \
@@ -27,9 +29,11 @@ Core/Src/sen54.o: ../Core/Src/sen54.c ../Core/Inc/sen54.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_pwr_ex.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h \
  ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h \
- ../Core/Inc/main.h ../Core/Inc/sensirion_i2c_hal.h \
- ../Core/Inc/sensirion_config.h ../Core/Inc/sen5x_i2c.h
-../Core/Inc/sen54.h:
+ ../Core/Inc/main.h
+../Core/Inc/sensirion_i2c_hal.h:
+../Core/Inc/sensirion_config.h:
+../Core/Inc/sensirion_common.h:
+../Core/Inc/sensirion_config.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal.h:
 ../Core/Inc/stm32l4xx_hal_conf.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_rcc.h:
@@ -59,6 +63,3 @@ Core/Src/sen54.o: ../Core/Src/sen54.c ../Core/Inc/sen54.h \
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart.h:
 ../Drivers/STM32L4xx_HAL_Driver/Inc/stm32l4xx_hal_uart_ex.h:
 ../Core/Inc/main.h:
-../Core/Inc/sensirion_i2c_hal.h:
-../Core/Inc/sensirion_config.h:
-../Core/Inc/sen5x_i2c.h:

@@ -9,7 +9,8 @@
 #include "main.h"       // Optional: for global I2C handle if needed
 #include <string.h>
 #include <stdint.h>
-
+#include "sensirion_i2c_hal.h"
+#include "sen5x_i2c.h"
 // SEN54 command to start measurement (as per datasheet)
 static const uint8_t start_measurement_cmd[] = { 0x00, 0x10 };
 
