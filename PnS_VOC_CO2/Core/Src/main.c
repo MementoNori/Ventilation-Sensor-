@@ -25,11 +25,19 @@
 #include "easy_rgb_lcd.h"
 #include "buzzer.h"
 #include "sen54.h"
+#include "sen5x_i2c.h"
+#include "string.h"
+#include "stdio.h"
+#include "buzzer_music.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+#ifdef __GNUC__
+#define PUTCHAR_PROTOTYPE int __io_putchar(int ch)
+#else
+#define PUTCHAR_PROTOTYPE int fputc(int ch, FILE *f)
+#endif
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -109,6 +117,49 @@ int main(void)
   //first I2C initialization
   sgp30_iaq_init();
   HAL_Delay(1000);
+  uint8_t sensor_data[60];  // Buffer large enough for full data
+
+   uint8_t buffer[48];
+   sen5x_get_product_name(buffer, 48);
+   int16_t error = sen5x_device_reset();
+   error = sen5x_start_measurement();
+
+   uint16_t mass_concentration_pm1p0;
+   uint16_t mass_concentration_pm2p5;
+   uint16_t mass_concentration_pm4p0;
+   uint16_t mass_concentration_pm10p0;
+   int16_t ambient_humidity;
+   int16_t ambient_temperature;
+   int16_t voc_index;
+   int16_t nox_index;
+   uint8_t cur_screen = 0;
+   uint32_t last_switch = 0;
+
+
+
+   HAL_Delay(1000);
+
+   error = sen5x_read_measured_values(
+       &mass_concentration_pm1p0, &mass_concentration_pm2p5,
+       &mass_concentration_pm4p0, &mass_concentration_pm10p0,
+       &ambient_humidity, &ambient_temperature, &voc_index, &nox_index);
+
+   if (sen54_init(&hi2c1) == HAL_OK)
+   {
+       printf("Sensor initialized.\r\n");
+   } else {
+       printf("Sensor init failed.\r\n");
+   }
+
+
+   if (sen54_read_measurements(&hi2c1, sensor_data, sizeof(sensor_data)) == HAL_OK) {
+       /*printf("Measurement received:\r\n");*/
+
+       for (int i = 0; i < sizeof(sensor_data); i++) {
+           printf("%02X ", sensor_data[i]);
+       }
+       printf("\r\n");
+   }
 
   /* USER CODE END 2 */
 
@@ -122,26 +173,66 @@ int main(void)
 
 	  char buffer[17];
 
-	  uint8_t cur_screen = 0;
-	  uint32_t last_switch = 0;
 
 
 	  //reading VOC and CO2 values
 	  sgp30_measure_iaq_blocking_read(&tvoc, &co2);
 
+	  /*
 	  //reading SEn54
-	  if (sen54_measure() == 0) {
-	          temp = sen54_get_temperature();
-	          hum = sen54_get_humidity();
-	          pm25 = sen54_get_pm2p5();
-	      }
+	  if (sen54_read_measurements(&hi2c1, sensor_data, sizeof(sensor_data)) == HAL_OK) {
+	        printf("Measurement received:\r\n");
+	        for (int i = 0; i < sizeof(sensor_data); i++) {
+	            printf("%02X ", sensor_data[i]);
+	        }
+	        printf("\r\n");
+	  }
+*/
+	  if (sen54_read_measurements(&hi2c1, sensor_data, sizeof(sensor_data)) == HAL_OK) {
 
+	  	      printf("\r\n");
+	  	      uint16_t raw_mc_1 = ((uint16_t)sensor_data[0] << 8) | sensor_data[1];
+	  	      mass_concentration_pm1p0 = raw_mc_1/10.0f;
+	  	      int mc_1_int = (int)(mass_concentration_pm1p0 + 0.5f);
+	  	      printf("\r\nMass Concentration PM1.0: %.d °C\r\n", mc_1_int);
+
+	  	      printf("\r\n");
+	  	      uint16_t raw_mc_25 = ((uint16_t)sensor_data[3] << 8) | sensor_data[4];
+	  	      mass_concentration_pm2p5 = raw_mc_25/10.0f;
+	  	      int mc_25_int = (int)(mass_concentration_pm2p5 + 0.5f);
+	  	      printf("\r\nMass Concentration PM2.5: %.d °C\r\n", mc_25_int);
+
+	  	      printf("\r\n");
+	  	      uint16_t raw_mc_4 = ((uint16_t)sensor_data[6] << 8) | sensor_data[7];
+	  	      mass_concentration_pm4p0 = raw_mc_4/10.0f;
+	  	      int mc_4_int = (int)(mass_concentration_pm4p0 + 0.5f);
+	  	      printf("\r\nMass Concentration PM4.0: %.d °C\r\n", mc_4_int);
+
+	  	      printf("\r\n");
+	  	      uint16_t raw_mc_10 = ((uint16_t)sensor_data[9] << 8) | sensor_data[10];
+	  	      mass_concentration_pm10p0 = raw_mc_10/10.0f;
+	  	      int mc_10_int = (int)(mass_concentration_pm10p0 + 0.5f);
+	  	      printf("\r\nMass Concentration PM10.0: %.d °C\r\n", mc_10_int);
+
+	  	      printf("\r\n");
+	  	      uint16_t raw_hum = ((uint16_t)sensor_data[12] << 8) | sensor_data[13];
+	  	      ambient_humidity = raw_hum/100.0f;
+	  	      int hum_int = (int)(ambient_humidity + 0.5f);
+	  	      printf("\r\nAmbient Humidity: %.d %\r\n", hum_int);
+
+	  	      uint16_t raw_temp = ((uint16_t)sensor_data[15] << 8) | sensor_data[16];
+	  	      float room_temperature = raw_temp / 200.0f;
+	  	      int temp_int = (int)(room_temperature + 0.5f);
+	  	      printf("\r\nAmbient Temperature: %.d °C\r\n", temp_int);
+
+
+	  	  }
 
 
 	  HAL_Delay(1000); //read every second
 
 	  //cycling through the data on screen
-	  if (HAL_GetTick() - last_switch >= 5000) {
+	  if (HAL_GetTick() - last_switch >= 3000) {
 	          last_switch = HAL_GetTick();
 	          cur_screen = (cur_screen + 1) % 3;
 
@@ -156,27 +247,67 @@ int main(void)
 					  LCD_setCursor(0, 1);
 					  snprintf(buffer, sizeof(buffer), "TVOC: %u ppb", tvoc);
 					  LCD_print(buffer, strlen(buffer));
+					  break;
 				  case 1:
 					  LCD_setCursor(0, 0);
-					  int temp_int = (int)(temp + 0.5f);
+					  uint16_t raw_temp = ((uint16_t)sensor_data[15] << 8) | sensor_data[16];
+					  float room_temperature = raw_temp / 200.0f;
+					  int temp_int = (int)(room_temperature + 0.5f);
 					  snprintf(buffer, sizeof(buffer), "T: %d C", temp_int);
 					  LCD_print(buffer, strlen(buffer));
 
 					  LCD_setCursor(0, 1);
-					  int hum_int = (int)(hum + 0.5f);
+					  //int hum_int = (int)(hum + 0.5f);
+					  uint16_t raw_hum = ((uint16_t)sensor_data[12] << 8) | sensor_data[13];
+					  ambient_humidity = raw_hum/100.0f;
+					  int hum_int = (int)(ambient_humidity + 0.5f);
 					  snprintf(buffer, sizeof(buffer), "RH: %d %%", hum_int);
 					  LCD_print(buffer, strlen(buffer));
+					  break;
 				  case 2:
 					  LCD_setCursor(0, 0);
-					  snprintf(buffer, sizeof(buffer), "PM2.5: %u ug/m3", pm25);
+					  uint16_t raw_mc_25 = ((uint16_t)sensor_data[3] << 8) | sensor_data[4];
+					  mass_concentration_pm2p5 = raw_mc_25/10.0f;
+					  int mc_25_int = (int)(mass_concentration_pm2p5 + 0.5f);
+					  snprintf(buffer, sizeof(buffer), "PM2.5: %u ug/m3", mc_25_int);
 					  LCD_print(buffer, strlen(buffer));
+					  break;
 			  }
 
 
 	  }
+
+	  uint16_t raw_temp = ((uint16_t)sensor_data[15] << 8) | sensor_data[16];
+	 					  float room_temperature = raw_temp / 200.0f;
+	 					  int temp_int = (int)(room_temperature + 0.5f);
+	  uint16_t raw_hum = ((uint16_t)sensor_data[12] << 8) | sensor_data[13];
+	  ambient_humidity = raw_hum/100.0f;
+	  int hum_int = (int)(ambient_humidity + 0.5f);
+	  uint16_t raw_mc_25 = ((uint16_t)sensor_data[3] << 8) | sensor_data[4];
+	  mass_concentration_pm2p5 = raw_mc_25/10.0f;
+	  int mc_25_int = (int)(mass_concentration_pm2p5 + 0.5f);
+
 	  //Check Lüften conditions
-	  if (co2>1000|| tvoc>300||pm25>35){
-		  buzzer_beep(500);
+	  if (co2>1000|| tvoc>300||mass_concentration_pm2p5>35 || room_temperature>30.0f || ambient_humidity > 60.0f){
+
+		 //Twinkle Twinkle little star
+
+		  int length = 15;
+		  char notes[] = "ccggaagffeeddc ";
+		  int beats[]  = {1,1,1,1,1,1,2,1,1,1,1,1,1,2,4};
+		  int tempo = 300;
+		  char buffer[17];
+/*
+		    == for TOM THE TANK ENGINE
+		    	  int length = 8;
+		    	  char notes[] = "gahCDEG "
+		    	  int beats[] = {1,1,1,2,1,1,4};
+		    	  int tempo = 300;
+	*/
+
+
+		for (int i = 0; i < length; i++) {
+		  LCD_clear();
 		  LCD_setCursor(0, 0);
 		  snprintf(buffer, sizeof(buffer), "LUEFTEN!");
 		  LCD_print(buffer, strlen(buffer));
@@ -189,14 +320,38 @@ int main(void)
 		  else if (tvoc > 300) {
 		          snprintf(buffer, sizeof(buffer), "TVOC: %u ppb", tvoc);
 		      }
-		  else if (pm25 > 35) {
-		          snprintf(buffer, sizeof(buffer), "PM2.5: %u ug/m3", pm25);
+		  else if (room_temperature > 50.0f || room_temperature < 18.0f) {
+			  uint16_t raw_temp = ((uint16_t)sensor_data[15] << 8) | sensor_data[16];
+			  float room_temperature = raw_temp / 200.0f;
+			  int temp_int = (int)(room_temperature + 0.5f);
+			  snprintf(buffer, sizeof(buffer), "T: %d C", temp_int);
 		      }
+		  else if (ambient_humidity  > 60.0f) {
+			  uint16_t raw_hum = ((uint16_t)sensor_data[12] << 8) | sensor_data[13];
+			  ambient_humidity = raw_hum/100.0f;
+			  int hum_int = (int)(ambient_humidity + 0.5f);
+			  snprintf(buffer, sizeof(buffer), "RH: %d %%", hum_int);
+			  LCD_print(buffer, strlen(buffer));
+		  		      }
+		  else if (mass_concentration_pm2p5 > 35) {
+			  uint16_t raw_mc_25 = ((uint16_t)sensor_data[3] << 8) | sensor_data[4];
+			  mass_concentration_pm2p5 = raw_mc_25/10.0f;
+			  int mc_25_int = (int)(mass_concentration_pm2p5 + 0.5f);
+			  snprintf(buffer, sizeof(buffer), "PM2.5: %u ug/m3", mc_25_int);
+		  }
 		  LCD_print(buffer, strlen(buffer));
 
-		  HAL_Delay(500);
+		  if (notes[i] == ' ') {
+		  					HAL_Delay(beats[i] * tempo);
+		  				}
+		  else {
+		  					play_note(notes[i], beats[i] * tempo);
+		  				}
+		  				HAL_Delay(tempo / 2);
+		}
+		  HAL_Delay(3000);
 		  LCD_clear();
-		  HAL_Delay(500);
+		  HAL_Delay(3000);
 	  }
 
 

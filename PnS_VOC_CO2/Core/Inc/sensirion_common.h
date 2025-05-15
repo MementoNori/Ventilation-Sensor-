@@ -203,6 +203,9 @@ int16_t sensirion_i2c_delayed_read_cmd(uint8_t address, uint16_t cmd,
 int16_t sensirion_i2c_read_cmd(uint8_t address, uint16_t cmd,
                                uint16_t* data_words, uint16_t num_words);
 
+void sensirion_common_copy_bytes(const uint8_t* source, uint8_t* destination,
+                                 uint16_t data_length);
+
 #ifdef __cplusplus
 }
 #endif

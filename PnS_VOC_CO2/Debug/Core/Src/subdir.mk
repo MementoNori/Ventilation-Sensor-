@@ -6,11 +6,15 @@
 # Add inputs and outputs from these tool invocations to the build variables 
 C_SRCS += \
 ../Core/Src/buzzer.c \
+../Core/Src/buzzer_music.c \
 ../Core/Src/easy_rgb_lcd.c \
 ../Core/Src/main.c \
 ../Core/Src/sen54.c \
+../Core/Src/sen5x_i2c.c \
 ../Core/Src/sensirion_common.c \
 ../Core/Src/sensirion_hw_i2c_implementation.c \
+../Core/Src/sensirion_i2c.c \
+../Core/Src/sensirion_i2c_hal.c \
 ../Core/Src/sgp30.c \
 ../Core/Src/stm32l4xx_hal_msp.c \
 ../Core/Src/stm32l4xx_it.c \
@@ -20,11 +24,15 @@ C_SRCS += \
 
 OBJS += \
 ./Core/Src/buzzer.o \
+./Core/Src/buzzer_music.o \
 ./Core/Src/easy_rgb_lcd.o \
 ./Core/Src/main.o \
 ./Core/Src/sen54.o \
+./Core/Src/sen5x_i2c.o \
 ./Core/Src/sensirion_common.o \
 ./Core/Src/sensirion_hw_i2c_implementation.o \
+./Core/Src/sensirion_i2c.o \
+./Core/Src/sensirion_i2c_hal.o \
 ./Core/Src/sgp30.o \
 ./Core/Src/stm32l4xx_hal_msp.o \
 ./Core/Src/stm32l4xx_it.o \
@@ -34,11 +42,15 @@ OBJS += \
 
 C_DEPS += \
 ./Core/Src/buzzer.d \
+./Core/Src/buzzer_music.d \
 ./Core/Src/easy_rgb_lcd.d \
 ./Core/Src/main.d \
 ./Core/Src/sen54.d \
+./Core/Src/sen5x_i2c.d \
 ./Core/Src/sensirion_common.d \
 ./Core/Src/sensirion_hw_i2c_implementation.d \
+./Core/Src/sensirion_i2c.d \
+./Core/Src/sensirion_i2c_hal.d \
 ./Core/Src/sgp30.d \
 ./Core/Src/stm32l4xx_hal_msp.d \
 ./Core/Src/stm32l4xx_it.d \
@@ -54,7 +66,7 @@ Core/Src/%.o Core/Src/%.su Core/Src/%.cyclo: ../Core/Src/%.c Core/Src/subdir.mk
 clean: clean-Core-2f-Src
 
 clean-Core-2f-Src:
-	-$(RM) ./Core/Src/buzzer.cyclo ./Core/Src/buzzer.d ./Core/Src/buzzer.o ./Core/Src/buzzer.su ./Core/Src/easy_rgb_lcd.cyclo ./Core/Src/easy_rgb_lcd.d ./Core/Src/easy_rgb_lcd.o ./Core/Src/easy_rgb_lcd.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/sen54.cyclo ./Core/Src/sen54.d ./Core/Src/sen54.o ./Core/Src/sen54.su ./Core/Src/sensirion_common.cyclo ./Core/Src/sensirion_common.d ./Core/Src/sensirion_common.o ./Core/Src/sensirion_common.su ./Core/Src/sensirion_hw_i2c_implementation.cyclo ./Core/Src/sensirion_hw_i2c_implementation.d ./Core/Src/sensirion_hw_i2c_implementation.o ./Core/Src/sensirion_hw_i2c_implementation.su ./Core/Src/sgp30.cyclo ./Core/Src/sgp30.d ./Core/Src/sgp30.o ./Core/Src/sgp30.su ./Core/Src/stm32l4xx_hal_msp.cyclo ./Core/Src/stm32l4xx_hal_msp.d ./Core/Src/stm32l4xx_hal_msp.o ./Core/Src/stm32l4xx_hal_msp.su ./Core/Src/stm32l4xx_it.cyclo ./Core/Src/stm32l4xx_it.d ./Core/Src/stm32l4xx_it.o ./Core/Src/stm32l4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32l4xx.cyclo ./Core/Src/system_stm32l4xx.d ./Core/Src/system_stm32l4xx.o ./Core/Src/system_stm32l4xx.su
+	-$(RM) ./Core/Src/buzzer.cyclo ./Core/Src/buzzer.d ./Core/Src/buzzer.o ./Core/Src/buzzer.su ./Core/Src/buzzer_music.cyclo ./Core/Src/buzzer_music.d ./Core/Src/buzzer_music.o ./Core/Src/buzzer_music.su ./Core/Src/easy_rgb_lcd.cyclo ./Core/Src/easy_rgb_lcd.d ./Core/Src/easy_rgb_lcd.o ./Core/Src/easy_rgb_lcd.su ./Core/Src/main.cyclo ./Core/Src/main.d ./Core/Src/main.o ./Core/Src/main.su ./Core/Src/sen54.cyclo ./Core/Src/sen54.d ./Core/Src/sen54.o ./Core/Src/sen54.su ./Core/Src/sen5x_i2c.cyclo ./Core/Src/sen5x_i2c.d ./Core/Src/sen5x_i2c.o ./Core/Src/sen5x_i2c.su ./Core/Src/sensirion_common.cyclo ./Core/Src/sensirion_common.d ./Core/Src/sensirion_common.o ./Core/Src/sensirion_common.su ./Core/Src/sensirion_hw_i2c_implementation.cyclo ./Core/Src/sensirion_hw_i2c_implementation.d ./Core/Src/sensirion_hw_i2c_implementation.o ./Core/Src/sensirion_hw_i2c_implementation.su ./Core/Src/sensirion_i2c.cyclo ./Core/Src/sensirion_i2c.d ./Core/Src/sensirion_i2c.o ./Core/Src/sensirion_i2c.su ./Core/Src/sensirion_i2c_hal.cyclo ./Core/Src/sensirion_i2c_hal.d ./Core/Src/sensirion_i2c_hal.o ./Core/Src/sensirion_i2c_hal.su ./Core/Src/sgp30.cyclo ./Core/Src/sgp30.d ./Core/Src/sgp30.o ./Core/Src/sgp30.su ./Core/Src/stm32l4xx_hal_msp.cyclo ./Core/Src/stm32l4xx_hal_msp.d ./Core/Src/stm32l4xx_hal_msp.o ./Core/Src/stm32l4xx_hal_msp.su ./Core/Src/stm32l4xx_it.cyclo ./Core/Src/stm32l4xx_it.d ./Core/Src/stm32l4xx_it.o ./Core/Src/stm32l4xx_it.su ./Core/Src/syscalls.cyclo ./Core/Src/syscalls.d ./Core/Src/syscalls.o ./Core/Src/syscalls.su ./Core/Src/sysmem.cyclo ./Core/Src/sysmem.d ./Core/Src/sysmem.o ./Core/Src/sysmem.su ./Core/Src/system_stm32l4xx.cyclo ./Core/Src/system_stm32l4xx.d ./Core/Src/system_stm32l4xx.o ./Core/Src/system_stm32l4xx.su
 
 .PHONY: clean-Core-2f-Src
 

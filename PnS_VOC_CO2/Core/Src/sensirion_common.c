@@ -47,6 +47,14 @@ uint32_t sensirion_bytes_to_uint32_t(const uint8_t* bytes) {
            (uint32_t)bytes[2] << 8 | (uint32_t)bytes[3];
 }
 
+int16_t sensirion_common_bytes_to_int16_t(const uint8_t* bytes) {
+    return (int16_t)sensirion_bytes_to_uint16_t(bytes);
+}
+
+int32_t sensirion_common_bytes_to_int32_t(const uint8_t* bytes) {
+    return (int32_t)sensirion_bytes_to_uint32_t(bytes);
+}
+
 float sensirion_bytes_to_float(const uint8_t* bytes) {
     union {
         uint32_t u32_value;
@@ -81,11 +89,11 @@ int8_t sensirion_common_check_crc(const uint8_t* data, uint16_t count,
         return STATUS_FAIL;
     return NO_ERROR;
 }
-
+/*
 int16_t sensirion_i2c_general_call_reset(void) {
     const uint8_t data = 0x06;
     return sensirion_i2c_write(0, &data, (uint16_t)sizeof(data));
-}
+}*/
 
 uint16_t sensirion_fill_cmd_send_buf(uint8_t* buf, uint16_t cmd,
                                      const uint16_t* args, uint8_t num_args) {
@@ -106,7 +114,7 @@ uint16_t sensirion_fill_cmd_send_buf(uint8_t* buf, uint16_t cmd,
     }
     return idx;
 }
-
+/*
 int16_t sensirion_i2c_read_words_as_bytes(uint8_t address, uint8_t* data,
                                           uint16_t num_words) {
     int16_t ret;
@@ -120,8 +128,8 @@ int16_t sensirion_i2c_read_words_as_bytes(uint8_t address, uint8_t* data,
         return ret;
 
     /* check the CRC for each word */
-    for (i = 0, j = 0; i < size; i += SENSIRION_WORD_SIZE + CRC8_LEN) {
-
+//    for (i = 0, j = 0; i < size; i += SENSIRION_WORD_SIZE + CRC8_LEN) {
+/*
         ret = sensirion_common_check_crc(&buf8[i], SENSIRION_WORD_SIZE,
                                          buf8[i + SENSIRION_WORD_SIZE]);
         if (ret != NO_ERROR)
@@ -132,8 +140,8 @@ int16_t sensirion_i2c_read_words_as_bytes(uint8_t address, uint8_t* data,
     }
 
     return NO_ERROR;
-}
-
+}*/
+/*
 int16_t sensirion_i2c_read_words(uint8_t address, uint16_t* data_words,
                                  uint16_t num_words) {
     int16_t ret;
@@ -152,14 +160,16 @@ int16_t sensirion_i2c_read_words(uint8_t address, uint16_t* data_words,
 
     return NO_ERROR;
 }
-
+*/
+/*
 int16_t sensirion_i2c_write_cmd(uint8_t address, uint16_t command) {
     uint8_t buf[SENSIRION_COMMAND_SIZE];
 
     sensirion_fill_cmd_send_buf(buf, command, NULL, 0);
     return sensirion_i2c_write(address, buf, SENSIRION_COMMAND_SIZE);
 }
-
+*/
+/*
 int16_t sensirion_i2c_write_cmd_with_args(uint8_t address, uint16_t command,
                                           const uint16_t* data_words,
                                           uint16_t num_words) {
@@ -169,7 +179,8 @@ int16_t sensirion_i2c_write_cmd_with_args(uint8_t address, uint16_t command,
     buf_size = sensirion_fill_cmd_send_buf(buf, command, data_words, num_words);
     return sensirion_i2c_write(address, buf, buf_size);
 }
-
+*/
+/*
 int16_t sensirion_i2c_delayed_read_cmd(uint8_t address, uint16_t cmd,
                                        uint32_t delay_us, uint16_t* data_words,
                                        uint16_t num_words) {
@@ -186,9 +197,51 @@ int16_t sensirion_i2c_delayed_read_cmd(uint8_t address, uint16_t cmd,
 
     return sensirion_i2c_read_words(address, data_words, num_words);
 }
-
+*/
+/*
 int16_t sensirion_i2c_read_cmd(uint8_t address, uint16_t cmd,
                                uint16_t* data_words, uint16_t num_words) {
     return sensirion_i2c_delayed_read_cmd(address, cmd, 0, data_words,
                                           num_words);
+}
+*/
+void sensirion_common_uint32_t_to_bytes(const uint32_t value, uint8_t* bytes) {
+    bytes[0] = value >> 24;
+    bytes[1] = value >> 16;
+    bytes[2] = value >> 8;
+    bytes[3] = value;
+}
+
+void sensirion_common_uint16_t_to_bytes(const uint16_t value, uint8_t* bytes) {
+    bytes[0] = value >> 8;
+    bytes[1] = value;
+}
+
+void sensirion_common_int32_t_to_bytes(const int32_t value, uint8_t* bytes) {
+    bytes[0] = value >> 24;
+    bytes[1] = value >> 16;
+    bytes[2] = value >> 8;
+    bytes[3] = value;
+}
+
+void sensirion_common_int16_t_to_bytes(const int16_t value, uint8_t* bytes) {
+    bytes[0] = value >> 8;
+    bytes[1] = value;
+}
+
+void sensirion_common_float_to_bytes(const float value, uint8_t* bytes) {
+    union {
+        uint32_t u32_value;
+        float float32;
+    } tmp;
+    tmp.float32 = value;
+    sensirion_common_uint32_t_to_bytes(tmp.u32_value, bytes);
+}
+
+void sensirion_common_copy_bytes(const uint8_t* source, uint8_t* destination,
+                                 uint16_t data_length) {
+    uint16_t i;
+    for (i = 0; i < data_length; i++) {
+        destination[i] = source[i];
+    }
 }
